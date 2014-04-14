@@ -8,9 +8,9 @@
 package bitcask
 
 import (
-	. "./dict"
 	"errors"
 	"fmt"
+	. "github.com/JWZH/caskdb/bitcask/dict"
 	"io"
 	"log"
 	"os"

@@ -1,7 +1,7 @@
 package caskdb
 
 import (
-	"./bitcask"
+	. "github.com/JWZH/caskdb/bitcask"
 )
 
 type Storage interface {
@@ -12,21 +12,16 @@ type Storage interface {
 }
 
 type BitcaskStore struct {
-	bc *bitcask.Bitcask
+	bc *Bitcask
 }
 
-func NewBitcaskStore(o Options) *BitcaskStore {
+func NewBitcaskStore(c Config) *BitcaskStore {
 	b := new(BitcaskStore)
-	b.bc = new(bitcask.Bitcask)
+	b.bc = new(Bitcask)
 	var err error
-	b.bc, err = bitcask.NewBitcask(bitcask.Options{
-		MaxFileSize:  o.MaxFileSize,
-		MergeWindow:  o.MergeWindow,
-		MergeTrigger: o.MergeTrigger,
-		Path:         o.Path,
-	})
+	b.bc, err = NewBitcask(c.Options)
 	if err != nil {
-		panic("Can not open db:" + o.Path + err.Error())
+		panic("Can not open db:" + c.Path + err.Error())
 	}
 	return b
 }

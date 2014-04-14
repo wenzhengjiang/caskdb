@@ -1,7 +1,7 @@
 package caskdb
 
 import (
-	"./bitcask"
+	"github.com/JWZH/caskdb/bitcask"
 	"os"
 	"testing"
 )
@@ -30,7 +30,7 @@ var Testdata = []TestKeyValue{
 
 func TestOpen(t *testing.T) {
 
-	bc := NewBitcaskStore(Options{O})
+	bc := NewBitcaskStore(Config{O})
 	err := bc.Close()
 	if err != nil {
 		t.Fatalf("Error %s Close", err.Error())
@@ -38,7 +38,7 @@ func TestOpen(t *testing.T) {
 }
 
 func TestW(t *testing.T) {
-	bc := NewBitcaskStore(Options{O})
+	bc := NewBitcaskStore(Config{O})
 	for _, kv := range Testdata {
 		err := bc.Set(kv.key, &Item{Body: kv.value})
 		if err != nil {
@@ -49,7 +49,7 @@ func TestW(t *testing.T) {
 }
 
 func TestR(t *testing.T) {
-	bc := NewBitcaskStore(Options{O})
+	bc := NewBitcaskStore(Config{O})
 	defer os.RemoveAll(testDirPath)
 	for _, kv := range Testdata {
 		i, err := bc.Get(kv.key)

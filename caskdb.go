@@ -1,9 +1,9 @@
 package caskdb
 
 import (
-	"./bitcask"
+	"github.com/JWZH/caskdb/bitcask"
 )
 
-type Options struct {
+type Config struct {
 	bitcask.Options
 }
