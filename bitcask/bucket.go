@@ -43,7 +43,7 @@ type Bucket struct {
 
 func NewBucket(f *os.File, id int32) *Bucket {
 	Lg.Println("Create bucket " + f.Name())
-	offset, _ := f.Seek(0, 1)
+	offset, _ := f.Seek(0, 2)
 	return &Bucket{
 		io:     f,
 		wbuf:   bufio.NewWriter(f),

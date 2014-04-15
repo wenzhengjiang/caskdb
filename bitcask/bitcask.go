@@ -10,7 +10,7 @@ package bitcask
 import (
 	"errors"
 	"fmt"
-	. "github.com/JWZH/caskdb/bitcask/dict"
+	//	. "github.com/JWZH/caskdb/bitcask/dict"
 	"io"
 	"log"
 	"os"
@@ -100,6 +100,7 @@ func (b *Bitcask) Set(key string, value []byte) error {
 
 func (b *Bitcask) Get(key string) ([]byte, error) {
 	item, ok := b.keydir.Get(key)
+	log.Println("Get", key, item.Vpos)
 	if !ok {
 		return nil, ErrKeyNotFound
 	}
@@ -207,6 +208,7 @@ func (b *Bitcask) set2(key string, value []byte, tstamp int64) error {
 		return err
 	}
 	b.keydir.Add(key, b.curr.id, int32(len(value)), vpos, tstamp)
+	log.Println("Set", key, vpos)
 	b.sum++
 	if b.Has(key) {
 		b.dead++
