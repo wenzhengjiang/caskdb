@@ -43,7 +43,8 @@ type Bucket struct {
 
 func NewBucket(f *os.File, id int32) *Bucket {
 	Lg.Println("Create bucket " + f.Name())
-	offset, _ := f.Seek(0, 2)
+	fi, _ := f.Stat()
+	offset := fi.Size()
 	return &Bucket{
 		io:     f,
 		wbuf:   bufio.NewWriter(f),
@@ -109,7 +110,7 @@ func (b *Bucket) Read() (*Record, error) {
 	data := append(append(headerData, r.key...), r.value...)
 	crc := crc32.ChecksumIEEE(data[4:])
 	if r.crc != crc {
-		return nil, fmt.Errorf("CRC check failed %u %u 2335539323", r.crc, crc)
+		return nil, fmt.Errorf("CRC check failed %u %u", r.crc, crc)
 	}
 	return r, err
 }

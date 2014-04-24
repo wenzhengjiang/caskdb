@@ -1,0 +1,30 @@
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bitcask.go:244: Open activefile /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bitcask.go:244: Open activefile /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key1 /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key2 /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bitcask.go:244: Open activefile /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key1 /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key2 /home/jwzh/testData/000000000.data
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket /tmp/1
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key1 /tmp/1
+
+2014/04/24 16:11:01 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key2 /tmp/1

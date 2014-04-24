@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	LOGFILE         string      = "/var/test.log"
+	LOGFILE         string      = "test.log"
 	defaultFilePerm os.FileMode = 0666
 	defaultDirPerm  os.FileMode = 0766
 	DATA_FILE       string      = "%09d.data"
@@ -100,7 +100,6 @@ func (b *Bitcask) Set(key string, value []byte) error {
 
 func (b *Bitcask) Get(key string) ([]byte, error) {
 	item, ok := b.keydir.Get(key)
-	log.Println("Get", key, item.Vpos)
 	if !ok {
 		return nil, ErrKeyNotFound
 	}
@@ -122,6 +121,10 @@ func (b *Bitcask) Del(key string) error {
 	return e
 }
 
+func (b *Bitcask) Keys() chan string {
+	return b.keydir.Keys()
+}
+
 func (b *Bitcask) Sync() error {
 	return b.curr.Sync()
 }
@@ -139,7 +142,6 @@ func (b *Bitcask) fillKeydir(fn string) error {
 		return fmt.Errorf("FillKeydir : %s", err.Error())
 	}
 	defer f.Close()
-
 	var fid int32
 	fmt.Sscanf(fn, DATA_FILE, &fid)
 	bucket := NewBucket(f, fid)
@@ -208,13 +210,11 @@ func (b *Bitcask) set2(key string, value []byte, tstamp int64) error {
 		return err
 	}
 	b.keydir.Add(key, b.curr.id, int32(len(value)), vpos, tstamp)
-	log.Println("Set", key, vpos)
 	b.sum++
 	if b.Has(key) {
 		b.dead++
 	}
 	return nil
-
 }
 
 // scan reads key info from datafiles to build keydir
@@ -241,7 +241,6 @@ func (b *Bitcask) scan() error {
 		activeFilePath = path.Join(b.Path, fns[len(fns)-1])
 		fid = int32(len(fns)) - 1
 	}
-
 	Lg.Println("Open activefile " + activeFilePath)
 	var activefile *os.File
 	activefile, err = os.OpenFile(activeFilePath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0766)
@@ -308,7 +307,6 @@ func (b *Bitcask) getValue(item *Item) ([]byte, error) {
 		return nil, fmt.Errorf("getValue %s", err.Error())
 	}
 	defer fp.Close()
-
 	value := make([]byte, item.Vsz)
 	rsz, err := fp.ReadAt(value, int64(item.Vpos))
 	if int32(rsz) != item.Vsz {

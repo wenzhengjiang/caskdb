@@ -1,9 +1,9 @@
 package main
 
 import (
-	. "../bitcask"
 	"flag"
 	"fmt"
+	. "github.com/JWZH/caskdb/bitcask"
 	"log"
 	"math/rand"
 	"os"
@@ -34,6 +34,7 @@ func benchSet(s *Bitcask, N, vsz int) time.Duration {
 	for j := 0; j < N; j++ {
 		key := fmt.Sprintf("%d_%d", j%16, j)
 		err := s.Set(key, value)
+		s.Sync()
 		if err != nil {
 			log.Fatalf("Error %s while Seting %s", err.Error(), key)
 		}
@@ -41,7 +42,20 @@ func benchSet(s *Bitcask, N, vsz int) time.Duration {
 	t1 := time.Now()
 	return t1.Sub(t0)
 }
-
+func benchSetSync(s *Bitcask, N, vsz int) time.Duration {
+	value := genValue(vsz)
+	t0 := time.Now()
+	for j := 0; j < N; j++ {
+		key := fmt.Sprintf("%d_%d", j%16, j)
+		err := s.Set(key, value)
+		s.Sync()
+		if err != nil {
+			log.Fatalf("Error %s while Seting %s", err.Error(), key)
+		}
+	}
+	t1 := time.Now()
+	return t1.Sub(t0)
+}
 func benchGet(s *Bitcask, N, vsz int) time.Duration {
 	value := genValue(vsz)
 	for j := 0; j < N; j++ {
@@ -94,6 +108,8 @@ func main() {
 		du = benchSet(s, *N, f(*vsz))
 	case "R":
 		du = benchGet(s, *N, f(*vsz))
+	case "SW":
+		du = benchSetSync(s, *N, f(*vsz))
 	}
 	fmt.Printf("%f ops/sec\n", float64(*N)/du.Seconds())
 

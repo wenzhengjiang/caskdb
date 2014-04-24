@@ -71,6 +71,20 @@ func TestBC(t *testing.T) {
 		}
 	}
 }
+func TestKeys(t *testing.T) {
+	b, _ := NewBitcask(O)
+	//	defer os.RemoveAll(b.path)
+	for _, kv := range Testdata {
+		err := b.Set(kv.key, kv.value)
+		if err != nil {
+			t.Fatalf("Error %s while Seting %s", err.Error(), kv.key)
+		}
+	}
+	b.Sync()
+	for key := range b.Keys() {
+		println(key)
+	}
+}
 
 func BenchmarkSet1K(t *testing.B) {
 	benchSet(t, K)

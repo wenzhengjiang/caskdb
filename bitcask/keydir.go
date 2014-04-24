@@ -55,6 +55,17 @@ func (k *Keydir) Remove(key string) {
 
 	delete(k.kv, key)
 }
+
+func (k *Keydir) Keys() chan string {
+	ch := make(chan string)
+	go func() {
+		for k, _ := range k.kv {
+			ch <- k
+		}
+		close(ch)
+	}()
+	return ch
+}
 func (k *Keydir) Destroy() {
 
 }
