@@ -1,0 +1,37 @@
+<table class="FR" cellspacing="0"> 
+<tr><th colspan="18">Active servers (stats)</th></tr> 
+    <tr> 
+        <th>#</th> 
+        <th>host</th> 
+        <th>version</th> 
+        <th>mem</th> 
+        <th>thd</th> 
+        <th>conn</th> 
+        <th>totoal_records</th> 
+        <th>current_records</th> 
+        <th>get</th> 
+        <th>set</th> 
+        <th>delete</th> 
+        <th>get/set</th> 
+        <th>hit</th> 
+        <th>read</th> 
+        <th>write</th> 
+    </tr> 
+{{range $i,$st := .}}
+<tr class="C1"> 
+    <td align="right">{{$i}}</td> 
+    <td align="right">{{.name}}</td> 
+    <td align="center">{{.version}}</td> 
+    <td align="right">{{.rusage_maxrss|size}}</td> 
+    <td align="right">{{.threads}}</td> 
+    <td align="right">{{.curr_connections}}</td> 
+    <td align="right">{{.total_items}}</td> 
+    <td align="right">{{.current_items}}</td> 
+    <td align="right">{{.cmd_get }}</td> 
+    <td align="right">{{.cmd_set}}</td> 
+    <td align="right">{{.cmd_delete}}</td> 
+    <td align="right">{{.hit}}%</td>
+    <td align="right">{{.bytes_written|size}} </td>
+    <td align="right">{{.bytes_read|size}}</td>
+</tr> 
+{{end}}

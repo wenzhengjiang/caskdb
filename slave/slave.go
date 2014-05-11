@@ -73,10 +73,6 @@ func (self *BitcaskStore) Get(key string) (*memcache.Item, error) {
 	return &memcache.Item{Body: v}, nil
 }
 
-func (self *BitcaskStore) GetMulti(keys []string) (map[string]*memcache.Item, error) {
-	return nil, nil
-}
-
 func (self *BitcaskStore) Set(key string, item *memcache.Item, noreply bool) (bool, error) {
 	e := self.bc.Set(key, item.Body)
 	if e != nil {
@@ -85,16 +81,8 @@ func (self *BitcaskStore) Set(key string, item *memcache.Item, noreply bool) (bo
 	return true, nil
 }
 
-func (self *BitcaskStore) Append(key string, value []byte) (bool, error) {
-	return false, nil
-}
-
-func (self *BitcaskStore) Incr(key string, value int) (int, error) {
-	return -1, nil
-}
-
-func (self *BitcaskStore) Len() int {
-	return -1
+func (self *BitcaskStore) Len() int64 {
+	return self.bc.Len()
 }
 
 func (self *BitcaskStore) Delete(key string) (bool, error) {

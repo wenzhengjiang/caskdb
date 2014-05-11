@@ -1,3 +1,4 @@
 memcache
 bench
 testdb
+*.log

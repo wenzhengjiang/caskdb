@@ -121,6 +121,9 @@ func (b *Bitcask) Del(key string) error {
 	return e
 }
 
+func (b *Bitcask) Len() int64 {
+	return b.sum
+}
 func (b *Bitcask) Keys() chan string {
 	return b.keydir.Keys()
 }
