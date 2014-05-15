@@ -1,4 +1,4 @@
-caskdb
+Caskdb
 ======
 
-A fast key-value store
+Caskdb is a distributed key-value database. It was implemented for educational purpose.

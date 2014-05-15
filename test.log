@@ -1,8 +1,0 @@
-
-2014/04/30 21:20:34 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket testdb/000000000.data
-
-2014/04/30 21:20:34 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bitcask.go:247: Open activefile testdb/000000000.data
-
-2014/04/30 21:20:34 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:45: Create bucket testdb/000000000.data
-
-2014/04/30 21:21:07 /home/jwzh/goproject/src/github.com/JWZH/caskdb/bitcask/bucket.go:153: write %s to %s key1 testdb/000000000.data

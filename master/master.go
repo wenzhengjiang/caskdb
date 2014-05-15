@@ -1,10 +1,10 @@
 package main
 
 import (
+	. "caskdb/protocol"
 	"compress/gzip"
 	"flag"
 	"fmt"
-	. "github.com/JWZH/caskdb/memcache"
 	"github.com/robfig/config"
 	"io"
 	"log"
@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-var conf *string = flag.String("conf", "/home/jwzh/goproject/src/github.com/JWZH/caskdb/conf/example.ini", "config path")
+var conf *string = flag.String("conf", "conf/example.ini", "config path")
 var debug *bool = flag.Bool("debug", true, "debug info")
 var allocLimit *int = flag.Int("alloc", 1024*4, "cmem alloc limit")
 
@@ -246,7 +246,7 @@ func update_stats(servers []string, hosts []*Host, server_stats []map[string]int
 	}
 }
 
-const STATIC_DIR = "/home/jwzh/goproject/src/github.com/JWZH/caskdb/master/static/"
+const STATIC_DIR = "static/"
 
 func init() {
 	funcs := make(template.FuncMap)

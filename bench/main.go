@@ -1,23 +1,21 @@
 package main
 
 import (
+	. "caskdb/client"
 	"flag"
 	"fmt"
-	. "github.com/JWZH/caskdb/bitcask"
 	"log"
 	"math/rand"
-	"os"
 	"runtime"
 	"strconv"
 	"time"
 )
 
-const testDirPath = "/home/jwzh/tmpdata/testData"
-
-var O Options = Options{1024 * 1024 * 1024, [2]int{0, 23}, 1.0, testDirPath}
 var t *string = flag.String("t", "W", "")
 var N *int = flag.Int("n", 1000, "")
 var vsz *string = flag.String("sz", "1K", "")
+var addr *string = flag.String("addr", "localhost:7905", "")
+var thread *int = flag.Int("thread", 4, "")
 
 func genValue(size int) []byte {
 	v := make([]byte, size)
@@ -28,13 +26,12 @@ func genValue(size int) []byte {
 }
 
 //a_b
-func benchSet(s *Bitcask, N, vsz int) time.Duration {
+func benchSet(s *Client, N, vsz int) time.Duration {
 	value := genValue(vsz)
 	t0 := time.Now()
 	for j := 0; j < N; j++ {
 		key := fmt.Sprintf("%d_%d", j%16, j)
-		err := s.Set(key, value)
-		s.Sync()
+		_, err := s.Set(key, value)
 		if err != nil {
 			log.Fatalf("Error %s while Seting %s", err.Error(), key)
 		}
@@ -42,30 +39,30 @@ func benchSet(s *Bitcask, N, vsz int) time.Duration {
 	t1 := time.Now()
 	return t1.Sub(t0)
 }
-func benchSetSync(s *Bitcask, N, vsz int) time.Duration {
-	value := genValue(vsz)
+
+func benchSetSync(s *Client, N, vsz int) time.Duration {
+	// value := genValue(vsz)
 	t0 := time.Now()
-	for j := 0; j < N; j++ {
-		key := fmt.Sprintf("%d_%d", j%16, j)
-		err := s.Set(key, value)
-		s.Sync()
-		if err != nil {
-			log.Fatalf("Error %s while Seting %s", err.Error(), key)
-		}
-	}
+	//	for j := 0; j < N; j++ {
+	//		key := fmt.Sprintf("%d_%d", j%16, j)
+	//		err := s.Set(key, value)
+	//		s.Sync()
+	//		if err != nil {
+	//			log.Fatalf("Error %s while Seting %s", err.Error(), key)
+	//		}
+	//	}
 	t1 := time.Now()
 	return t1.Sub(t0)
 }
-func benchGet(s *Bitcask, N, vsz int) time.Duration {
+func benchGet(s *Client, N, vsz int) time.Duration {
 	value := genValue(vsz)
 	for j := 0; j < N; j++ {
 		key := fmt.Sprintf("%d_%d", j%16, j)
-		err := s.Set(key, value)
+		_, err := s.Set(key, value)
 		if err != nil {
 			log.Fatalf("Error %s while Seting %s", err.Error(), key)
 		}
 	}
-	s.Sync()
 	kv := make([]int, N)
 	for i := 0; i < N; i++ {
 		kv[i] = rand.Intn(N)
@@ -84,10 +81,8 @@ func benchGet(s *Bitcask, N, vsz int) time.Duration {
 
 func main() {
 	flag.Parse()
-	runtime.GOMAXPROCS(4)
-	os.RemoveAll(testDirPath)
-	s, _ := NewBitcask(O)
-
+	runtime.GOMAXPROCS(*thread)
+	client := NewClient(*addr)
 	f := func(s string) int {
 		ret, _ := strconv.Atoi(s[:len(s)-1])
 		switch s[len(s)-1] {
@@ -105,18 +100,15 @@ func main() {
 	var du time.Duration
 	switch *t {
 	case "W":
-		du = benchSet(s, *N, f(*vsz))
+		du = benchSet(client, *N, f(*vsz))
 	case "R":
-		du = benchGet(s, *N, f(*vsz))
+		du = benchGet(client, *N, f(*vsz))
 	case "SW":
-		du = benchSetSync(s, *N, f(*vsz))
+		du = benchSetSync(client, *N, f(*vsz))
 	}
+
 	fmt.Printf("%f ops/sec\n", float64(*N)/du.Seconds())
 
-	t0 := time.Now()
-	s.Close()
-	t1 := time.Now()
-	fmt.Printf("disk: %f ops/sec ", float64(*N)/(du.Seconds()+t1.Sub(t0).Seconds()))
-
+	client.FlushAll()
 	return
 }
