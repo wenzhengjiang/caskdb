@@ -366,13 +366,13 @@ func main() {
 		server_stats = make([]map[string]interface{}, len(servers))
 		go update_stats(servers, nil, server_stats, true)
 
-		//		proxys, e := c.String("monitor", "proxy")
-		//		if e != nil {
-		//			proxys = fmt.Sprintf("localhost:%d", port)
-		//		}
-		//		proxies := strings.Split(proxys, ",")
-		//		proxy_stats := make([]map[string]interface{}, 1)
-		//		go update_stats(proxies, nil, proxy_stats, false)
+		proxys, e := c.String("monitor", "proxy")
+		if e != nil {
+			proxys = fmt.Sprintf("localhost:%d", port)
+		}
+		proxies := strings.Split(proxys, ",")
+		proxy_stats := make([]map[string]interface{}, 1)
+		go update_stats(proxies, nil, proxy_stats, false)
 
 		http.Handle("/", http.HandlerFunc(makeGzipHandler(Status)))
 		http.Handle("/static/", http.FileServer(http.Dir("./")))
