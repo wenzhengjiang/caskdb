@@ -41,41 +41,47 @@ func (c *Client) Get(key string) (r *Item, err error) {
 }
 
 func (c *Client) Set(key string, item *Item, noreply bool) (bool, error) {
-	hosts := make([]*Host, 1)
+	hosts := make([]*Host, 2)
 	if c.sch.IsMegrating {
 		hosts = c.sch.GetHostsByKey2(key)
 	} else {
 		hosts = c.sch.GetHostsByKey(key)
 	}
-	for i, h := range hosts {
-		if i == 0 {
-			ok, e := h.Set(key, item, noreply)
-			if !ok || e != nil {
-				return ok, fmt.Errorf("%s : %s", h.Addr, e.Error())
-			}
-		} else {
-			go h.Set(key, item, noreply)
+
+	if len(hosts) == 2 {
+		key2 := key + "@#$" + hosts[1].Addr
+		ok, e := hosts[0].Set(key2, item, noreply)
+		// treat hosts[1] to the main copy node
+		if !ok {
+			key2 = key + "@#$" + hosts[0].Addr
+			ok, e = hosts[1].Set(key2, item, noreply)
+		}
+		if !ok || e != nil {
+			return ok, fmt.Errorf("%s : %s", hosts[1].Addr, e.Error())
+		}
+	} else {
+		ok, e := hosts[0].Set(key, item, noreply)
+		if !ok || e != nil {
+			return ok, fmt.Errorf("%s : %s", hosts[0].Addr, e.Error())
 		}
 	}
 	return true, nil
 }
 
 func (c *Client) Delete(key string) (r bool, err error) {
+	hosts := make([]*Host, 2)
 	if c.sch.IsMegrating {
-		hosts := c.sch.GetHostsByKey2(key)
-		for _, h := range hosts {
-			ok, e := h.Delete(key)
-			if !ok || e != nil {
-				return ok, e
-			}
-		}
+		hosts = c.sch.GetHostsByKey2(key)
+	} else {
+		hosts = c.sch.GetHostsByKey(key)
 	}
-	hosts := c.sch.GetHostsByKey(key)
-	for _, h := range hosts {
-		ok, e := h.Delete(key)
-		if !ok || e != nil {
-			return ok, e
-		}
+
+	if len(hosts) == 2 {
+		key += "@@" + hosts[1].Addr
+	}
+	ok, e := hosts[0].Delete(key)
+	if !ok || e != nil {
+		return ok, fmt.Errorf("%s : %s", hosts[0].Addr, e.Error())
 	}
 	return true, nil
 }

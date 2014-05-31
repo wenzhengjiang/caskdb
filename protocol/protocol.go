@@ -348,7 +348,7 @@ func (req *Request) Process(store Storage, stat *Stats) (resp *Response) {
 			resp.items = make(map[string]*Item, 1)
 			resp.items[key] = item
 			stat.get_hits++
-			stat.bytes_written += int64(len(item.Body))
+			stat.bytes_read += int64(len(item.Body))
 		}
 
 	case "set":
@@ -361,7 +361,7 @@ func (req *Request) Process(store Storage, stat *Stats) (resp *Response) {
 		}
 
 		stat.cmd_set++
-		stat.bytes_read += int64(len(req.Item.Body))
+		stat.bytes_written += int64(len(req.Item.Body))
 		if suc {
 			resp.status = "STORED"
 		} else {

@@ -16,6 +16,8 @@ var N *int = flag.Int("n", 1000, "")
 var vsz *string = flag.String("sz", "1K", "")
 var addr *string = flag.String("addr", "localhost:7905", "")
 var thread *int = flag.Int("thread", 4, "")
+var conn *int = flag.Int("conns", 1, "")
+var dua *int = flag.Int("dua", 0, "")
 
 func genValue(size int) []byte {
 	v := make([]byte, size)
@@ -28,15 +30,28 @@ func genValue(size int) []byte {
 //a_b
 func benchSet(s *Client, N, vsz int) time.Duration {
 	value := genValue(vsz)
+	ok := make(chan bool, *conn)
 	t0 := time.Now()
-	for j := 0; j < N; j++ {
-		key := fmt.Sprintf("%d_%d", j%16, j)
-		_, err := s.Set(key, value)
-		if err != nil {
-			log.Fatalf("Error %s while Seting %s", err.Error(), key)
-		}
+	for i := 0; i < *conn; i++ {
+		go func(i int) {
+			for j := 0; j < N / *conn; j++ {
+				if *dua > 0 {
+					time.Sleep(time.Duration(*dua) * time.Millisecond)
+				}
+				key := fmt.Sprintf("%d_%d", i, j)
+				_, err := s.Set(key, value)
+				if err != nil {
+					log.Fatalf("Error %s while Seting %s", err.Error(), key)
+				}
+			}
+			ok <- true
+		}(i)
+	}
+	for i := 0; i < *conn; i++ {
+		<-ok
 	}
 	t1 := time.Now()
+	s.FlushAll()
 	return t1.Sub(t0)
 }
 
@@ -55,25 +70,23 @@ func benchSetSync(s *Client, N, vsz int) time.Duration {
 	return t1.Sub(t0)
 }
 func benchGet(s *Client, N, vsz int) time.Duration {
-	value := genValue(vsz)
-	for j := 0; j < N; j++ {
-		key := fmt.Sprintf("%d_%d", j%16, j)
-		_, err := s.Set(key, value)
-		if err != nil {
-			log.Fatalf("Error %s while Seting %s", err.Error(), key)
-		}
-	}
-	kv := make([]int, N)
-	for i := 0; i < N; i++ {
-		kv[i] = rand.Intn(N)
-	}
+	benchSet(s, N, vsz)
+	ok := make(chan bool, *conn)
 	t0 := time.Now()
-	for j := 0; j < N; j++ {
-		key := fmt.Sprintf("%d_%d", kv[j]%16, kv[j])
-		_, err := s.Get(key)
-		if err != nil {
-			log.Fatalf("Error %s while Geting %s", err.Error(), key)
-		}
+	for i := 0; i < *conn; i++ {
+		go func(i int) {
+			for j := 0; j < N / *conn; j++ {
+				key := fmt.Sprintf("%d_%d", i, j)
+				_, err := s.Get(key)
+				if err != nil {
+					log.Fatalf("Error %s while Geting %s", err.Error(), key)
+				}
+			}
+			ok <- true
+		}(i)
+	}
+	for i := 0; i < *conn; i++ {
+		<-ok
 	}
 	t1 := time.Now()
 	return t1.Sub(t0)

@@ -9,11 +9,13 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 )
 
 type BitcaskStore struct {
-	bc *Bitcask
+	bc  *Bitcask
+	chF chan func()
 }
 
 func crc32hash(s []byte) uint32 {
@@ -25,6 +27,8 @@ func crc32hash(s []byte) uint32 {
 func NewStore(c Config) *BitcaskStore {
 	b := new(BitcaskStore)
 	b.bc = new(Bitcask)
+	b.chF = make(chan func(), 100)
+	go b.backend()
 	var err error
 	b.bc, err = NewBitcask(c.Options)
 	if err != nil {
@@ -33,6 +37,12 @@ func NewStore(c Config) *BitcaskStore {
 	return b
 }
 
+func (self *BitcaskStore) backend() {
+	for f := range self.chF {
+		f()
+	}
+
+}
 func (self *BitcaskStore) Close() error {
 	if err := self.bc.Close(); err != nil {
 		return err
@@ -47,7 +57,6 @@ func (self *BitcaskStore) migrate(host string, left, right uint32) {
 		v := crc32hash([]byte(key))
 		if (left < right && v >= left && v < right) ||
 			(left > right && !(v >= left && v < right)) {
-
 			v, e := self.bc.Get(key)
 			if e == nil {
 				target.Set(key, &protocol.Item{Body: v}, false)
@@ -70,7 +79,6 @@ func (self *BitcaskStore) Get(key string) (*protocol.Item, error) {
 		return &protocol.Item{Body: []byte("TRUST ME")}, nil
 	}
 	v, err := self.bc.Get(key)
-	log.Println(key, string(v))
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +86,18 @@ func (self *BitcaskStore) Get(key string) (*protocol.Item, error) {
 }
 
 func (self *BitcaskStore) Set(key string, item *protocol.Item, noreply bool) (bool, error) {
+	if len(key) > 3 && strings.Contains(key, "@#$") {
+		pos := strings.Index(key, "@#$")
+		target := protocol.NewHost(key[pos+3:])
+		key = key[:pos]
+		self.chF <- func() {
+			for {
+				if ok, _ := target.Set(key, item, noreply); ok {
+					break
+				}
+			}
+		}
+	}
 	e := self.bc.Set(key, item.Body)
 	if e != nil {
 		return false, e
@@ -99,7 +119,7 @@ func (self *BitcaskStore) Delete(key string) (bool, error) {
 }
 
 var listen *string = flag.String("listen", "0.0.0.0", "address to listen")
-var port *int = flag.Int("port", 7900, "port to listen")
+var port *int = flag.Int("port", 7901, "port to listen")
 var accesslog *string = flag.String("accesslog", "", "access log path")
 var debug *bool = flag.Bool("debug", false, "debug info")
 var threads *int = flag.Int("threads", 8, "number of threads")

@@ -22,7 +22,7 @@ import (
 )
 
 var conf *string = flag.String("conf", "conf/example.ini", "config path")
-var debug *bool = flag.Bool("debug", true, "debug info")
+var debug *bool = flag.Bool("debug", false, "debug info")
 var allocLimit *int = flag.Int("alloc", 1024*4, "cmem alloc limit")
 
 type gzipResponseWriter struct {
@@ -159,9 +159,7 @@ var schd Scheduler
 var client *Client
 
 func update_stats(servers []string, hosts []*Host, server_stats []map[string]interface{}, isNode bool) {
-	if AccessLog != nil {
-		AccessLog.Println(servers)
-	}
+
 	if hosts == nil {
 		hosts = make([]*Host, len(servers))
 		for i, s := range servers {
@@ -335,6 +333,9 @@ func checkServers(client *Client, oldServers []string) {
 		if e == nil {
 			newServers := getServers(serverss)
 			if len(oldServers) < len(newServers) {
+				if AccessLog != nil {
+					AccessLog.Println(newServers)
+				}
 				client.UpdateServers(newServers)
 				oldServers = newServers
 				server_stats = make([]map[string]interface{}, len(newServers))
@@ -366,14 +367,14 @@ func main() {
 		server_stats = make([]map[string]interface{}, len(servers))
 		go update_stats(servers, nil, server_stats, true)
 
-		proxys, e := c.String("monitor", "proxy")
-		if e != nil {
-			proxys = fmt.Sprintf("localhost:%d", port)
-		}
-		proxies := strings.Split(proxys, ",")
-		proxy_stats := make([]map[string]interface{}, 1)
-		go update_stats(proxies, nil, proxy_stats, false)
-
+		//		proxys, e := c.String("monitor", "proxy")
+		//		if e != nil {
+		//			proxys = fmt.Sprintf("localhost:%d", port)
+		//		}
+		//		proxies := strings.Split(proxys, ",")
+		//		proxy_stats := make([]map[string]interface{}, 1)
+		//		go update_stats(proxies, nil, proxy_stats, false)
+		//
 		http.Handle("/", http.HandlerFunc(makeGzipHandler(Status)))
 		http.Handle("/static/", http.FileServer(http.Dir("./")))
 		go func() {
