@@ -115,9 +115,10 @@ func (c *Scheduler) doMigrateJob() {
 	v := uint64(crc32hash([]byte(addr)))<<32 + uint64(N)
 	i := sort.Search(N, func(k int) bool { return c.index[k] >= v })
 	hid := c.index[i] & 0xffffffff
-	done := c.hosts[hid].Migrate(addr, uint32(c.index[(i-2+N)%N]>>32), uint32(v>>32))
-	<-done
-
+	err := c.hosts[hid].Migrate(addr, uint32(c.index[(i-2+N)%N]>>32), uint32(v>>32))
+	if err != nil {
+		c.doMigrateJob()
+	}
 }
 
 //// 1 2 3 U 5 6

@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -69,12 +70,21 @@ func (self *BitcaskStore) FlushAll() {
 	self.bc.Sync()
 }
 
+//get @#$localhost:7902-3679577973-1113110223 8 0ms
+func extract(str string) (string, uint32, uint32) {
+	posA := strings.Index(str, "-")
+	posL := strings.LastIndex(str, "-")
+	addr := str[:posA]
+	log.Println(str[posA+1:posL], str[posL+1:])
+	left, _ := strconv.ParseUint(str[posA+1:posL], 10, 32)
+	right, _ := strconv.ParseUint(str[posL+1:], 10, 32)
+	return addr, uint32(left), uint32(right)
+}
 func (self *BitcaskStore) Get(key string) (*protocol.Item, error) {
 	self.bc.Sync()
 	if len(key) > 3 && key[0:3] == "@#$" {
-		var addr string
-		var left, right uint32
-		fmt.Sscanf("%s-%d-%d", addr, &left, &right)
+		addr, left, right := extract(key[3:])
+		log.Println(addr, left, right)
 		go self.migrate(addr, left, right)
 		return &protocol.Item{Body: []byte("TRUST ME")}, nil
 	}
@@ -121,7 +131,7 @@ func (self *BitcaskStore) Delete(key string) (bool, error) {
 var listen *string = flag.String("listen", "0.0.0.0", "address to listen")
 var port *int = flag.Int("port", 7901, "port to listen")
 var accesslog *string = flag.String("accesslog", "", "access log path")
-var debug *bool = flag.Bool("debug", false, "debug info")
+var debug *bool = flag.Bool("debug", true, "debug info")
 var threads *int = flag.Int("threads", 8, "number of threads")
 var memlimit *int = flag.Int("memlimit", 1024*2, "limit memory used by go heap (M)")
 

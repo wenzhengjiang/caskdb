@@ -184,13 +184,9 @@ func (host *Host) Stat() (map[string]string, error) {
 	return st, nil
 }
 
-func (host *Host) Migrate(addr string, left, right uint32) chan bool {
-	done := make(chan bool)
-	go func() {
-		host.Get(fmt.Sprintf("@#$%s-%d-%d", addr, left, right))
-		done <- true
-	}()
-	return done
+func (host *Host) Migrate(addr string, left, right uint32) error {
+	_, e := host.Get(fmt.Sprintf("@#$%s-%d-%d", addr, left, right))
+	return e
 }
 
 func (host *Host) Len() int {
