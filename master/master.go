@@ -332,6 +332,7 @@ func checkServers(client *Client, oldServers []string) {
 		serverss, e := c.String("default", "servers")
 		if e == nil {
 			newServers := getServers(serverss)
+			log.Println(oldServers, newServers)
 			if len(oldServers) < len(newServers) {
 				if AccessLog != nil {
 					AccessLog.Println(newServers)
@@ -429,7 +430,7 @@ func main() {
 	}
 
 	log.Println("proxy listen on ", addr)
-	go checkServers(client, servers)
+	//	go checkServers(client, servers)
 	proxy.Serve()
 	log.Print("shut down gracefully.")
 }

@@ -6,6 +6,7 @@ package protocol
 
 import (
 	"fmt"
+	"log"
 )
 
 type MODE int
@@ -92,6 +93,7 @@ func (c *Client) FlushAll() {
 	}
 }
 func (c *Client) UpdateServers(addrs []string) {
+	log.Println("UpdataServers")
 	c.sch.Update(addrs)
 }
 

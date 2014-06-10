@@ -1,6 +1,7 @@
 package protocol
 
 import (
+	"log"
 	"sort"
 	"sync"
 )
@@ -86,6 +87,7 @@ func (c *Scheduler) GetHostsByKey2(key string) []*Host {
 //TODO Need to be Better !
 
 func (c *Scheduler) Update(addrs []string) {
+	log.Println("Update")
 	if len(addrs) == len(c.hosts) {
 		return
 	}
@@ -110,6 +112,7 @@ func (c *Scheduler) Update(addrs []string) {
 
 func (c *Scheduler) doMigrateJob() {
 	//TODO need better solution!!
+	log.Println("doMigrateJob")
 	addr := c.hosts2[len(c.hosts2)-1].Addr
 	N := len(c.hosts)
 	v := uint64(crc32hash([]byte(addr)))<<32 + uint64(N)
