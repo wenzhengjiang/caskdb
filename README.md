@@ -26,24 +26,26 @@ go install caskdb/datanode
 
 ## How to run
 
-* master
+### master
+
 Prepare configure file(according to caskdb/master/conf/example.ini) and make sure static/ is in current path
 
 ```
 > master
 ```
 
-* datanode
+### datanode
 
 ```
 datanode -port=7901 -dbpath="test1" -debug
 datanode -port=7902 -dbpath="test2" -debug
 ```
 
-* monitor
+### monitor
+
 Open localhost:7908 in browser to monitor the state of datanodes
 
-* bench
+###  bench
 
 ```
 cd caskdb/bench
